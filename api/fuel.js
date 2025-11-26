@@ -1,26 +1,34 @@
-// api/fuel.js
 export default async function handler(req, res) {
   try {
-    // Official IPT JSON endpoint (behind the page you sent)
-    const response = await fetch("https://iptgroup.com.lb/FuelPrices/GetLatestFuelPrices");
+    const response = await fetch("https://iptgroup.com.lb/FuelPrices/GetLatestFuelPrices", {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Referer": "https://www.iptgroup.com.lb/",
+        "Origin": "https://www.iptgroup.com.lb"
+      }
+    });
+
     const json = await response.json();
 
     if (!json || !json.Data) {
-      return res.status(200).json({ ok: false, error: "Invalid IPT response" });
+      return res.status(200).json({ ok: false, error: "no_data" });
     }
 
-    const d = json.Data;
+    const data = json.Data;
 
     res.status(200).json({
       ok: true,
-      date: d.Date,          // "25/11/2025"
-      unl95: d.Unl95Price,   // "1,460,000"
-      unl98: d.Unl98Price,
-      diesel: d.DieselPrice,
-      gas: d.GasPrice
+      date: data.Date,
+      unl95: data.Unl95Price,
+      unl98: data.Unl98Price,
+      diesel: data.DieselPrice,
+      gas: data.GasPrice
     });
+
   } catch (err) {
-    console.error("Fuel API error:", err);
+    console.error(err);
     res.status(500).json({ ok: false, error: "fetch_failed" });
   }
 }
