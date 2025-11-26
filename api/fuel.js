@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   try {
-    const response = await fetch("https://www.iptgroup.com.lb/fuel-prices");
+    const response = await fetch("https://www.iptgroup.com.lb/ipt/en/our-stations/fuel-prices");
     const html = await response.text();
 
     // Clean spaces & line breaks
