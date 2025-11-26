@@ -3,16 +3,28 @@ export default async function handler(req, res) {
     const response = await fetch("https://www.iptgroup.com.lb/fuel-prices");
     const html = await response.text();
 
-    function matchNumber(regex) {
-      const m = html.match(regex);
-      return m ? m[1].trim() : null;
-    }
+    // Clean spaces & line breaks
+    const clean = html.replace(/\s+/g, " ");
 
-    const date   = matchNumber(/Fuel Prices\s+(\d{2}\/\d{2}\/\d{4})/i);
-    const unl95  = matchNumber(/UNL 95[\s\S]*?([\d,]+)/i);
-    const unl98  = matchNumber(/UNL 98[\s\S]*?([\d,]+)/i);
-    const diesel = matchNumber(/Diesel[\s\S]*?([\d,]+)/i);
-    const gas    = matchNumber(/LPG[\s\S]*?([\d,]+)/i);
+    // Extract date
+    const dateMatch = clean.match(/Fuel Prices\s*<\/h3>\s*<p>(\d{2}\/\d{2}\/\d{4})/i);
+    const date = dateMatch ? dateMatch[1] : null;
+
+    // Extract UNL 95
+    const unl95Match = clean.match(/UNL 95<\/td>\s*<td[^>]*>([\d,.]+)/i);
+    const unl95 = unl95Match ? unl95Match[1] : null;
+
+    // Extract UNL 98
+    const unl98Match = clean.match(/UNL 98<\/td>\s*<td[^>]*>([\d,.]+)/i);
+    const unl98 = unl98Match ? unl98Match[1] : null;
+
+    // Extract Diesel
+    const dieselMatch = clean.match(/Diesel<\/td>\s*<td[^>]*>([\d,.]+)/i);
+    const diesel = dieselMatch ? dieselMatch[1] : null;
+
+    // Extract Gas (LPG)
+    const gasMatch = clean.match(/Gas \(LPG\)<\/td>\s*<td[^>]*>([\d,.]+)/i);
+    const gas = gasMatch ? gasMatch[1] : null;
 
     res.status(200).json({
       ok: true,
